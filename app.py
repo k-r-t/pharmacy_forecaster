@@ -5,7 +5,9 @@ import plotly.express as px
 from statsmodels.tsa.arima.model import ARIMA
 import numpy as np
 
+
 st.set_page_config(page_title="Pharmacy Inventory System", layout="wide")
+
 st.markdown("""
     <style>
     .stApp { background-color: #E0F8E0; }
@@ -19,17 +21,17 @@ st.markdown('<div class="header-box"><h1>🏥 Pharmacy Demand Forecaster</h1></d
 def load_data():
     file_path = 'data/archive (2)/salesdaily.csv'
     df = pd.read_csv(file_path)
-    
+
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-    
+  
     if 'datum' in df.columns:
         df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
     
     for col in df.columns:
         if col != 'datum':
             df[col] = pd.to_numeric(df[col], errors='coerce')
-            
-      df = df.dropna(subset=['datum'])
+
+    df = df.dropna(subset=['datum'])
     return df
 
 try:
@@ -40,17 +42,17 @@ try:
     model_choice = st.sidebar.radio("Select Analysis Model:", ["Prophet", "ARIMA"])
     
     st.sidebar.header("Configuration")
-    selected_drug = st.sidebar.selectbox("Select Medication/Frequency:", drug_cols)
+    selected_drug = st.sidebar.selectbox("Select Medication:", drug_cols)
     days = st.sidebar.slider("Days to Forecast:", 7, 60, 30)
 
-     if model_choice == "Prophet":
+    if model_choice == "Prophet":
         st.subheader(f"Analyzing Sales with Prophet: {selected_drug}")
         df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
-        
+      
         model = Prophet(daily_seasonality=True).fit(df_prophet)
         future = model.make_future_dataframe(periods=days)
         forecast = model.predict(future)
-        
+      
         fig = px.line(forecast, x='ds', y='yhat', color_discrete_sequence=['red'])
         fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
         fig.update_xaxes(tickformat="%a, %b %d")
@@ -58,7 +60,8 @@ try:
 
     elif model_choice == "ARIMA":
         st.subheader(f"Analyzing Sales with ARIMA: {selected_drug}")
-      
+        
+        
         df_arima = df.set_index('datum')[selected_drug].sort_index()
         model = ARIMA(df_arima, order=(5,1,0))
         results = model.fit()
