@@ -29,7 +29,6 @@ def load_data():
     for col in ['Weekday Name', 'Unnamed: 0']:
         if col in df.columns:
             df = df.drop(columns=[col])
-    
     if 'datum' in df.columns:
         df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
         df = df.dropna(subset=['datum'])
@@ -50,15 +49,22 @@ try:
     future = model.make_future_dataframe(periods=days)
     forecast = model.predict(future)
 
+    # Display
     st.subheader(f"Analyzing Sales for: {selected_drug}")
-    
-    forecast_plot = forecast[['ds', 'yhat']].rename(columns={'yhat': 'Forecast'})
-    
-    fig = px.line(forecast_plot, x='ds', y='Forecast', color_discrete_sequence=['red'])
-    
+
+    fig = px.line(forecast, x='ds', y='yhat')
+ 
+    fig.update_traces(name='Forecasted Sales', line_color='red')
+
     fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
+
+    fig.update_layout(
+        title="AI Demand Forecast", 
+        xaxis_title="Date", 
+        yaxis_title="Sales Quantity",
+        legend_title="Metric"
+    )
     
-    fig.update_layout(title="AI Demand Forecast", xaxis_title="Date", yaxis_title="Sales")
     st.plotly_chart(fig, use_container_width=True)
 
 except Exception as e:
