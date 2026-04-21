@@ -20,7 +20,7 @@ def load_data():
     file_path = 'data/archive (2)/salesdaily.csv'
     df = pd.read_csv(file_path)
     
-       df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     
       if 'datum' in df.columns:
         df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
