@@ -22,7 +22,7 @@ def load_data():
     
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     
-      if 'datum' in df.columns:
+    if 'datum' in df.columns:
         df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
     
      for col in df.columns:
