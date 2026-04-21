@@ -12,7 +12,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🏥 Pharmacy Inventory Forecaster</h1>", unsafe_allow_html=True)
+st.markdown("<h1> Pharmacy Inventory Forecaster</h1>", unsafe_allow_html=True)
 
 @st.cache_data
 def load_data():
