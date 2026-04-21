@@ -63,12 +63,13 @@ try:
     forecast = model.predict(future)
 
     st.subheader(f"Analyzing Sales for: {selected_drug}")
+
+    fig=px.line(forecast,x='ds',y='yhat',color_discrete_sequence=["red"])
+    fig.data[0].name='Forecast'
    
-    fig = px.line(forecast, x='ds', y='yhat', title="AI Demand Forecast")
     fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
    
-    fig.update_traces(line_color='red', selector=dict(name='yhat'))
-    
+    fig.update_layout(title="AI Demand Forecast")
     st.plotly_chart(fig, use_container_width=True)
 
 except Exception as e:
