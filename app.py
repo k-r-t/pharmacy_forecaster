@@ -39,7 +39,7 @@ try:
     selected_drug = st.sidebar.selectbox("Select Medication Category:", drug_cols)
     days = st.sidebar.slider("Days to Forecast:", 7, 90, 30)
 
-        df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
+    df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
     model = Prophet(daily_seasonality=True)
     model.fit(df_prophet)
     
