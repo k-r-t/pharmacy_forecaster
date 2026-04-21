@@ -55,8 +55,8 @@ try:
         st.plotly_chart(fig, use_container_width=True)
         
     with col2:
-        st.info("💡 **Insight:** The red line represents the AI forecast, while the blue line shows historical data.")
-        st.markdown("**Instructions:** Adjust the days to forecast using the sidebar slider to see how the projections shift.")
+        st.info("💡Insight: The red line represents the AI forecast, while the blue line shows historical data.")
+        st.markdown("Instructions: Adjust the days to forecast using the sidebar slider to see how the projections shift.")
         
         csv = display_forecast.to_csv(index=False).encode('utf-8')
         st.download_button(
