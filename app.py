@@ -11,12 +11,17 @@ st.markdown(
 )
 st.markdown("---")
 
-
 @st.cache_data
 def load_data():
-    file_path = "data/archive (2)/salesdaily.csv"
+    file_path = 'data/archive (2)/salesdaily.csv'
     df = pd.read_csv(file_path)
-    df["datum"] = pd.to_datetime(df["datum"])
+    
+    # This line tells Python to turn errors (like "Thursday") into blank spaces (NaT)
+    df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
+    
+    # This line deletes the rows where the date wasn't valid
+    df = df.dropna(subset=['datum'])
+    
     return df
 
 
