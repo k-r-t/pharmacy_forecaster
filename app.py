@@ -9,7 +9,7 @@ st.set_page_config(page_title="Pharmacy Inventory System", layout="wide")
 st.markdown("""
     <style>
     .stApp { background-color: #E0F8E0; }
-    .header-box { background-color: #70A970; color: white; padding: 20px; border-radius: 10px; text-align: center; }
+    .header-box { background-color: #70A970; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -25,42 +25,45 @@ def load_data():
         df = df.dropna(subset=['datum'])
     return df
 
-df = load_data()
-drug_cols = [c for c in df.columns if c != 'datum']
+try:
+    df = load_data()
+    drug_cols = [c for c in df.columns if c != 'datum']
 
-st.sidebar.header("Configuration")
-model_choice = st.sidebar.radio("Select Analysis Model:", ["Prophet", "ARIMA"])
-selected_drug = st.sidebar.selectbox("Select Medication:", drug_cols)
-days = st.sidebar.slider("Days to Forecast:", 7, 60, 30)
-
-if model_choice == "Prophet":
- 
-    st.subheader(f"Analyzing Sales with Prophet: {selected_drug}")
-    df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
-    model = Prophet(daily_seasonality=True).fit(df_prophet)
+    st.sidebar.header("Navigation")
+    model_choice = st.sidebar.radio("Select Analysis Model:", ["Prophet", "ARIMA"])
     
-    future = model.make_future_dataframe(periods=days)
-    forecast = model.predict(future)
-    
-    forecast_df = forecast.rename(columns={'yhat': 'Predicted Sales'})
-    fig = px.line(forecast_df, x='ds', y='Predicted Sales', color_discrete_sequence=['red'])
-    fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
-    st.plotly_chart(fig, use_container_width=True)
+    st.sidebar.header("Configuration")
+    selected_drug = st.sidebar.selectbox("Select Medication:", drug_cols)
+    days = st.sidebar.slider("Days to Forecast:", 7, 60, 30)
 
-elif model_choice == "ARIMA":
-
-    st.subheader(f"Analyzing Sales with ARIMA: {selected_drug}")
+    if model_choice == "Prophet":
+        st.subheader(f"Analyzing Sales with Prophet: {selected_drug}")
+        df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
   
-    df_arima = df.set_index('datum')[selected_drug]
+        model = Prophet(daily_seasonality=True).fit(df_prophet)
+        future = model.make_future_dataframe(periods=days)
+        forecast = model.predict(future)
     
-   
-    model = ARIMA(df_arima, order=(5,1,0))
-    results = model.fit()
-    forecast = results.forecast(steps=days)
-    
+        fig = px.line(forecast, x='ds', y='yhat', color_discrete_sequence=['red'], labels={'yhat': 'Predicted Sales', 'ds': 'Date'})
+        fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
+        fig.update_xaxes(tickformat="%a, %b %d")
+        st.plotly_chart(fig, use_container_width=True)
 
-    fig = px.line(x=forecast.index, y=forecast.values, labels={'y': 'Predicted Sales', 'x': 'Date'}, color_discrete_sequence=['red'])
-    fig.add_scatter(x=df_arima.index, y=df_arima.values, mode='lines', name='Actual Sales', line=dict(color='blue'))
-    fig.update_layout(xaxis_title="Date", yaxis_title="Sales Quantity")
-    st.plotly_chart(fig, use_container_width=True)
+    elif model_choice == "ARIMA":
+        st.subheader(f"Analyzing Sales with ARIMA: {selected_drug}")
+     
+        df_arima = df.set_index('datum')[selected_drug]
+        model = ARIMA(df_arima, order=(5,1,0))
+        results = model.fit()
+        forecast_values = results.forecast(steps=days)
+      
+        forecast_df = pd.DataFrame({'ds': forecast_values.index, 'yhat': forecast_values.values})
+     
+        fig = px.line(forecast_df, x='ds', y='yhat', color_discrete_sequence=['red'], labels={'yhat': 'Predicted Sales', 'ds': 'Date'})
+        fig.add_scatter(x=df_arima.index, y=df_arima.values, mode='lines', name='Actual Sales', line=dict(color='blue'))
+        fig.update_xaxes(tickformat="%a, %b %d")
+        st.plotly_chart(fig, use_container_width=True)
 
+except Exception as e:
+    st.error(f"Error loading application: {e}")
+    st.write("Please ensure your data path is correct and your requirements.txt includes all necessary libraries.")
