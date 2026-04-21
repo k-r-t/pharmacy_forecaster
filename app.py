@@ -5,25 +5,31 @@ import plotly.express as px
 
 st.set_page_config(page_title="Pharmacy Inventory Forecaster", layout="wide")
 
-st.markdown("<h1 style='text-align: left; color: #007BFF;'> Pharmacy Inventory Forecaster</h1>", unsafe_allow_html=True)
-st.markdown("---")
+st.markdown("""
+    <style>
+    .stApp { background-color: #E0F8E0; }
+    h1 { background-color: #70A970; color: white; padding: 15px; border-radius: 10px; }
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown("<h1>🏥 Pharmacy Inventory Forecaster</h1>", unsafe_allow_html=True)
 
 @st.cache_data
 def load_data():
     file_path = 'data/archive (2)/salesdaily.csv'
-    df = pd.read_csv(file_path, skipinitialspace=True, encoding='utf-8')
+    df = pd.read_csv(file_path)
     
-    df.columns = df.columns.str.strip()
-    
+    if 'Weekday Name' in df.columns:
+        df = df.drop(columns=['Weekday Name'])
+
+    df.columns.values[0] = 'datum'
     df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
-    
     df = df.dropna(subset=['datum'])
     
     return df
 
 try:
     df = load_data()
-    
     columns = [col for col in df.columns if col != 'datum']
     
     st.sidebar.header("Configuration")
@@ -31,39 +37,15 @@ try:
     days = st.sidebar.slider("Days to Forecast:", 7, 90, 30)
 
     df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
- 
+    
     model = Prophet(daily_seasonality=True)
     model.fit(df_prophet)
     future = model.make_future_dataframe(periods=days)
     forecast = model.predict(future)
 
-    display_forecast = forecast.rename(columns={
-        'ds': 'Date', 
-        'yhat': 'Predicted Sales',
-        'yhat_lower': 'Lower Bound',
-        'yhat_upper': 'Upper Bound'
-    })
-
     st.subheader(f"Analyzing Sales for: {selected_drug}")
-
-    fig = px.line(display_forecast, x='Date', y='Predicted Sales', title="AI Demand Forecast", color_discrete_sequence=['red'])
-    fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
-    fig.update_layout(template="plotly_white", hovermode="x unified")
-
-    col1, col2 = st.columns([0.7, 0.3])
-    
-    with col1:
-        st.plotly_chart(fig, use_container_width=True)
-        
-    with col2:
-        st.info("💡 **Insight:** The red line represents the AI forecast, while the blue line shows historical data.")
-        st.download_button(
-            label="📥 Download Forecast Data", 
-            data=display_forecast.to_csv(index=False).encode('utf-8'), 
-            file_name="pharmacy_forecast.csv", 
-            mime="text/csv"
-        )
+    fig = px.line(forecast, x='ds', y='yhat', title="AI Demand Forecast")
+    st.plotly_chart(fig, use_container_width=True)
 
 except Exception as e:
-    st.error(f"SYSTEM ERROR: {e}")
-    st.write("If you see this, please delete the app from your Streamlit dashboard and reconnect your GitHub repository.")
+    st.error(f"DATA ERROR: {e}")
