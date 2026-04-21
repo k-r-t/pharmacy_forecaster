@@ -5,7 +5,7 @@ import plotly.express as px
 
 st.set_page_config(page_title="Pharmacy Inventory Forecaster", layout="wide")
 
-st.markdown("<h1 style='text-align: left; color: #007BFF;'>🏥 Pharmacy Inventory Forecaster</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: left; color: #007BFF;'> Pharmacy Inventory Forecaster</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
 @st.cache_data
