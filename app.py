@@ -15,7 +15,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="header-box"><h1>🏥 Pharmacy Demand Forecaster</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="header-box"><h1> Pharmacy Demand Forecaster</h1></div>', unsafe_allow_html=True)
 
 @st.cache_data
 def load_data():
@@ -42,7 +42,7 @@ try:
     model_choice = st.sidebar.radio("Select Analysis Model:", ["Prophet", "ARIMA"])
     
     st.sidebar.header("Configuration")
-    selected_drug = st.sidebar.selectbox("Select Medication:", drug_cols)
+    selected_drug = st.sidebar.selectbox("Select Medication/Frequency:", drug_cols)
     days = st.sidebar.slider("Days to Forecast:", 7, 60, 30)
 
     if model_choice == "Prophet":
