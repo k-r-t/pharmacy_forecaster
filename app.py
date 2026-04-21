@@ -26,9 +26,10 @@ st.markdown('<div class="header-box"><h1> Pharmacy Inventory Forecaster</h1></di
 def load_data():
     file_path = 'data/archive (2)/salesdaily.csv'
     df = pd.read_csv(file_path)
-    for col in ['Weekday Name', 'Unnamed: 0']:
+        for col in ['Weekday Name', 'Unnamed: 0']:
         if col in df.columns:
             df = df.drop(columns=[col])
+    
     if 'datum' in df.columns:
         df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
         df = df.dropna(subset=['datum'])
@@ -42,27 +43,25 @@ try:
     selected_drug = st.sidebar.selectbox("Select Medication Category:", drug_cols)
     days = st.sidebar.slider("Days to Forecast:", 7, 90, 30)
 
-    df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
+        df_prophet = df[['datum', selected_drug]].rename(columns={'datum': 'ds', selected_drug: 'y'})
     model = Prophet(daily_seasonality=True)
     model.fit(df_prophet)
     
     future = model.make_future_dataframe(periods=days)
     forecast = model.predict(future)
 
-    # Display
-    st.subheader(f"Analyzing Sales for: {selected_drug}")
-
-    fig = px.line(forecast, x='ds', y='yhat')
- 
-    fig.update_traces(name='Forecasted Sales', line_color='red')
-
-    fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
-
-    fig.update_layout(
+        st.subheader(f"Analyzing Sales for: {selected_drug}")
+        forecast_df = forecast.rename(columns={'yhat': 'Predicted Sales'})
+    
+        fig = px.line(forecast_df, x='ds', y='Predicted Sales', color_discrete_sequence=['red'])
+    
+        fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Actual Sales', line=dict(color='blue'))
+    
+        fig.update_layout(
         title="AI Demand Forecast", 
         xaxis_title="Date", 
         yaxis_title="Sales Quantity",
-        legend_title="Metric"
+        legend_title="Legend"
     )
     
     st.plotly_chart(fig, use_container_width=True)
