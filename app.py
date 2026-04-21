@@ -26,10 +26,6 @@ st.markdown('<div class="header-box"><h1> Pharmacy Inventory Forecaster</h1></di
 def load_data():
     file_path = 'data/archive (2)/salesdaily.csv'
     df = pd.read_csv(file_path)
-        for col in ['Weekday Name', 'Unnamed: 0']:
-            if col in df.columns:
-                df = df.drop(columns=[col])
-    
     if 'datum' in df.columns:
         df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
         df = df.dropna(subset=['datum'])
