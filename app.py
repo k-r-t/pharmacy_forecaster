@@ -25,7 +25,7 @@ def load_data():
     if 'datum' in df.columns:
         df['datum'] = pd.to_datetime(df['datum'], errors='coerce')
     
-     for col in df.columns:
+    for col in df.columns:
         if col != 'datum':
             df[col] = pd.to_numeric(df[col], errors='coerce')
             
