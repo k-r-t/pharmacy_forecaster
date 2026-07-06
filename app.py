@@ -130,7 +130,7 @@ else:
         df = df.dropna(subset=[date_col])
         dataset_label = uploaded_file.name
     else:
-        st.info("Upload a CSV file from the sidebar to get started, or switch to 'Use Sample Dataset'.")
+        st.info("Upload a CSV file from the sidebar to get you own forecast.")
         st.stop()
 
 # VALIDATION
