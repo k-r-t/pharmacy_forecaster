@@ -2,4 +2,6 @@ streamlit
 pandas 
 prophet 
 plotly
+numpy
 statsmodels
+scikit-learn
